@@ -1,0 +1,93 @@
+From 914bcb4a679d36e983ab40522aa58a31e9c50d82 Mon Sep 17 00:00:00 2001
+From: "Kyle J. Temkin" <ktemkin@binghamton.edu>
+Date: Thu, 9 Jul 2015 18:19:40 -0400
+Subject: [PATCH] Backport support for i915 write-combine mapping support.
+
+INSERT PATCH HEADER HERE
+---
+ drivers/gpu/drm/i915/i915_dma.c |  3 +++
+ drivers/gpu/drm/i915/i915_gem.c | 19 +++++++++++++++++++
+ include/uapi/drm/i915_drm.h     |  9 +++++++++
+ 3 files changed, 31 insertions(+)
+
+diff --git a/drivers/gpu/drm/i915/i915_dma.c b/drivers/gpu/drm/i915/i915_dma.c
+index 318ade9..f158284 100644
+--- a/drivers/gpu/drm/i915/i915_dma.c
++++ b/drivers/gpu/drm/i915/i915_dma.c
+@@ -1027,6 +1027,9 @@ static int i915_getparam(struct drm_device *dev, void *data,
+ 	case I915_PARAM_CMD_PARSER_VERSION:
+ 		value = i915_cmd_parser_get_version();
+ 		break;
++	case I915_PARAM_MMAP_VERSION:
++		value = 1;
++		break;
+ 	default:
+ 		DRM_DEBUG("Unknown parameter %d\n", param->param);
+ 		return -EINVAL;
+diff --git a/drivers/gpu/drm/i915/i915_gem.c b/drivers/gpu/drm/i915/i915_gem.c
+index d88dbed..4fe35a0 100644
+--- a/drivers/gpu/drm/i915/i915_gem.c
++++ b/drivers/gpu/drm/i915/i915_gem.c
+@@ -1475,6 +1475,12 @@ i915_gem_mmap_ioctl(struct drm_device *dev, void *data,
+ 	struct drm_gem_object *obj;
+ 	unsigned long addr;
+ 
++	if (args->flags & ~(I915_MMAP_WC))
++		return -EINVAL;
++
++	if (args->flags & I915_MMAP_WC && !cpu_has_pat)
++		return -ENODEV;
++
+ 	obj = drm_gem_object_lookup(dev, file, args->handle);
+ 	if (obj == NULL)
+ 		return -ENOENT;
+@@ -1490,6 +1496,19 @@ i915_gem_mmap_ioctl(struct drm_device *dev, void *data,
+ 	addr = vm_mmap(obj->filp, 0, args->size,
+ 		       PROT_READ | PROT_WRITE, MAP_SHARED,
+ 		       args->offset);
++	if (args->flags & I915_MMAP_WC) {
++		struct mm_struct *mm = current->mm;
++		struct vm_area_struct *vma;
++
++		down_write(&mm->mmap_sem);
++		vma = find_vma(mm, addr);
++		if (vma)
++			vma->vm_page_prot =
++				pgprot_writecombine(vm_get_page_prot(vma->vm_flags));
++		else
++			addr = -ENOMEM;
++		up_write(&mm->mmap_sem);
++	}
+ 	drm_gem_object_unreference_unlocked(obj);
+ 	if (IS_ERR((void *)addr))
+ 		return addr;
+diff --git a/include/uapi/drm/i915_drm.h b/include/uapi/drm/i915_drm.h
+index ff57f07..f15ac45 100644
+--- a/include/uapi/drm/i915_drm.h
++++ b/include/uapi/drm/i915_drm.h
+@@ -340,6 +340,7 @@ typedef struct drm_i915_irq_wait {
+ #define I915_PARAM_HAS_EXEC_HANDLE_LUT   26
+ #define I915_PARAM_HAS_WT     	 	 27
+ #define I915_PARAM_CMD_PARSER_VERSION	 28
++#define I915_PARAM_MMAP_VERSION          30
+ 
+ typedef struct drm_i915_getparam {
+ 	int param;
+@@ -487,6 +488,14 @@ struct drm_i915_gem_mmap {
+ 	 * This is a fixed-size type for 32/64 compatibility.
+ 	 */
+ 	__u64 addr_ptr;
++
++	/**
++	 * Flags for extended behaviour.
++	 *
++	 * Added in version 2.
++	 */
++	__u64 flags;
++#define I915_MMAP_WC 0x1
+ };
+ 
+ struct drm_i915_gem_mmap_gtt {
+-- 
+2.4.3
+
