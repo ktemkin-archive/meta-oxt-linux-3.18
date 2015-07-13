@@ -1,0 +1,4 @@
+##Linux for DisplayHandler
+
+This simple layer provides support for running Kernel 3.18 in dom0,
+including a minor patch that fixes cache coherency issues on i915.
