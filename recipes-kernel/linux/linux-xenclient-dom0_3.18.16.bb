@@ -13,7 +13,9 @@ require linux-xenclient-${PV_MAJOR}.${PV_MINOR}.inc
 SRC_URI += " \
             file://pciback-restrictive-attr.patch;patch=1 \
             file://0002-Add-thorough-reset-interface-to-pciback-s-sysfs.patch;patch=1 \
+            file://bp-find-special-page-vma-op-667a0a06c99d5291433b869ed35dabdd95ba1453.patch;striplevel=1 \
+            file://up-m2p-hash-size.patch;striplevel=1 \
             "
 
-PR = "1"
+PR = "2"
 
