@@ -1,0 +1,18 @@
+--- a/arch/x86/xen/p2m.c	2015-07-21 15:19:11.876548316 -0400
++++ b/arch/x86/xen/p2m.c	2015-07-22 17:20:55.777551844 -0400
+@@ -1158,13 +1158,13 @@
+ {
+ 	unsigned long flags;
+ 	struct list_head *bucket = &m2p_overrides[mfn_hash(mfn)];
+-	struct page *p, *ret;
++	struct page *p, *ret, *tmp;
+ 
+ 	ret = NULL;
+ 
+ 	spin_lock_irqsave(&m2p_override_lock, flags);
+ 
+-	list_for_each_entry(p, bucket, lru) {
++	list_for_each_entry_safe(p, tmp, bucket, lru) {
+ 		if (page_private(p) == mfn) {
+ 			ret = p;
+ 			break;
