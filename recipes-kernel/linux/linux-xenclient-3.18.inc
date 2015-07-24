@@ -33,12 +33,15 @@ SRC_URI = "https://www.kernel.org/pub/linux/kernel/v${PV_MAJOR}.x/linux-${PV}.ta
     file://netfront-support-backend-relocate.patch;patch=1 \
     file://konrad-microcode.patch;patch=1 \
     file://konrad-ioperm.patch;patch=1 \
+    file://gem-foreign.patch;patch=1 \
+    file://gem-foreign-debug.patch;patch=1 \
     file://fbcon-do-not-drag-detect-primary-option.patch;patch=1 \
     file://usbback-base.patch;patch=1 \
     file://hvc-kgdb-fix.patch;patch=1 \
     file://xenstore-no-read-vs-write-atomicity.patch;patch=1 \
     file://backport-i915-wc-mappings.patch;patch=1 \
     file://bp-find-special-page-vma-op-667a0a06c99d5291433b869ed35dabdd95ba1453.patch;striplevel=1 \
+    file://backport-config-Enable-NEED_DMA_MAP_STATE-by-default-when-SWIOTLB-is-selected.patch \
     file://defconfig"
 
 SRC_URI[kernel.md5sum] = "e2cb00e62421cbc3425272d437fab05e"
