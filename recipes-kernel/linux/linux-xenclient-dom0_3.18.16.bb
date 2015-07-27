@@ -13,7 +13,6 @@ require linux-xenclient-${PV_MAJOR}.${PV_MINOR}.inc
 SRC_URI += " \
             file://pciback-restrictive-attr.patch;patch=1 \
             file://0002-Add-thorough-reset-interface-to-pciback-s-sysfs.patch;patch=1 \
-            file://backport-i915-wc-mappings.patch \
             "
 
 PR = "1"
