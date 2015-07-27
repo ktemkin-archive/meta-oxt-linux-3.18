@@ -11,8 +11,3 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}-${PV_MAJOR}.${PV_MINOR}:"
 require linux-xenclient-${PV_MAJOR}.${PV_MINOR}.inc
 
 PR = "1"
-
-do_configure_prepend() {
-    sed -i '327a \\tdefault y' ${S}/mm/Kconfig
-
-}
