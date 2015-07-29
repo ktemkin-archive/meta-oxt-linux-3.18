@@ -1,4 +1,4 @@
-##Linux for DisplayHandler
+##Linux 3.18 for OpenXT
 
-This simple layer provides support for running Kernel 3.18 in dom0,
-including a minor patch that fixes cache coherency issues on i915.
+This simple layer pulls in @eric-ch's great work on a Linux 3.18 uprev,
+and adds a few small backports necessary for the upcoming Display Handler.
