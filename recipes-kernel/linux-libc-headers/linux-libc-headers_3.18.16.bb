@@ -1,4 +1,4 @@
-require linux-libc-headers.inc
+require recipes-kernel/linux-libc-headers/linux-libc-headers.inc
 
 PV_MAJOR = "${@"${PV}".split('.', 3)[0]}"
 
